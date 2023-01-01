@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/rwxrob/bonzai v0.20.10
+	github.com/rwxrob/compfile v0.1.12
 	github.com/rwxrob/conf v0.8.2
 	github.com/rwxrob/help v0.7.2
 	github.com/rwxrob/vars v0.6.4
@@ -25,7 +26,6 @@ require (
 	github.com/mikefarah/yq/v4 v4.30.6 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/rwxrob/compcmd v0.3.0 // indirect
-	github.com/rwxrob/compfile v0.1.12 // indirect
 	github.com/rwxrob/fn v0.4.0 // indirect
 	github.com/rwxrob/fs v0.20.2 // indirect
 	github.com/rwxrob/pegn v0.2.1 // indirect
