@@ -3,6 +3,12 @@
 [![GoDoc](https://godoc.org/github.com/murtaza-u/z?status.svg)](https://godoc.org/github.com/murtaza-u/z)
 [![License](https://img.shields.io/badge/license-Apache2-brightgreen.svg)](LICENSE)
 
+I use a personal fork of
+[rwxrob/bonzai](https://github.com/rwxrob/bonzai) which adds flag-like
+key-value pair arguments to our beloved commander. Go workspaces are
+used to point the dependencies to my local forked version. The `go.work`
+file is hence intentionally added to Git.
+
 ## Install
 
 ```
