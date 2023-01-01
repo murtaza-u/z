@@ -9,12 +9,6 @@ key-value pair arguments to our beloved commander. Go workspaces are
 used to point the dependencies to my local forked version. The `go.work`
 file is hence intentionally added to Git.
 
-## Install
-
-```
-go install github.com/murtaza-u/z/cmd/z@latest
-```
-
 ## Tab Completion
 
 To activate bash completion just use the `complete -C` option from your
