@@ -7,8 +7,10 @@ require (
 	github.com/rwxrob/compfile v0.1.12
 	github.com/rwxrob/conf v0.8.2
 	github.com/rwxrob/help v0.7.2
+	github.com/rwxrob/term v0.2.9
 	github.com/rwxrob/vars v0.6.4
 	github.com/rwxrob/yq v0.3.2
+	golang.org/x/crypto v0.4.0
 )
 
 require (
@@ -30,9 +32,7 @@ require (
 	github.com/rwxrob/fs v0.20.2 // indirect
 	github.com/rwxrob/pegn v0.2.1 // indirect
 	github.com/rwxrob/structs v0.6.0 // indirect
-	github.com/rwxrob/term v0.2.9 // indirect
 	github.com/rwxrob/to v0.12.1 // indirect
-	golang.org/x/crypto v0.4.0 // indirect
 	golang.org/x/net v0.4.0 // indirect
 	golang.org/x/sys v0.3.0 // indirect
 	golang.org/x/term v0.3.0 // indirect

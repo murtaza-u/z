@@ -3,6 +3,7 @@ package z
 import (
 	"github.com/murtaza-u/z/isosec"
 	"github.com/murtaza-u/z/pomo"
+	"github.com/murtaza-u/z/ssh"
 	"github.com/murtaza-u/z/vi"
 
 	"github.com/rwxrob/bonzai/z"
@@ -18,5 +19,7 @@ var Cmd = &Z.Cmd{
 	Site:      `https://murtazau.xyz`,
 	Source:    `https://github.com/murtaza-u/z`,
 	Issues:    `https://github.com/murtaza-u/z/issues`,
-	Commands:  []*Z.Cmd{help.Cmd, yq.Cmd, pomo.Cmd, vi.Cmd, isosec.Cmd},
+	Commands: []*Z.Cmd{
+		help.Cmd, yq.Cmd, pomo.Cmd, vi.Cmd, isosec.Cmd, ssh.Cmd,
+	},
 }
