@@ -2,9 +2,13 @@ package age
 
 import (
 	"fmt"
+	"io/fs"
+	"path/filepath"
 	"strings"
 
 	"github.com/murtaza-u/z/age/agelib"
+
+	"filippo.io/age"
 	"github.com/rwxrob/bonzai/z"
 	"github.com/rwxrob/compfile"
 	"github.com/rwxrob/help"
@@ -89,6 +93,11 @@ var asymmetricDecryptCmd = &Z.Cmd{
 		},
 	},
 	Call: func(caller *Z.Cmd, args ...string) error {
+		dir, err := Z.Conf.Query(`.age.directory`)
+		if err != nil || dir == "null" {
+			dir = defaultAgeDir
+		}
+
 		in, err := agelib.ReadIn(args[0])
 		if err != nil {
 			return err
@@ -101,13 +110,47 @@ var asymmetricDecryptCmd = &Z.Cmd{
 		}
 		defer out.Close()
 
+		var ids []age.Identity
+
 		_id := caller.GetVal("identity")
 		if _id == "" {
-			return fmt.Errorf("missing identity file")
+			var privs []string
+
+			// lookup every file under .age
+			filepath.WalkDir(dir, func(path string, _ fs.DirEntry, err error) error {
+				if err != nil {
+					return err
+				}
+				privs = append(privs, path)
+
+				return nil
+			})
+
+			// lookup every file under .ssh
+			filepath.WalkDir(sshDir, func(path string, d fs.DirEntry, err error) error {
+				if err != nil {
+					return err
+				}
+				privs = append(privs, path)
+
+				return nil
+			})
+
+			for _, p := range privs {
+				id, _ := agelib.ParseIdentityFile(p)
+				ids = append(ids, id...)
+			}
+		} else {
+			ids, err = agelib.ParseIdentityFile(_id)
+			if err != nil {
+				return err
+			}
 		}
 
-		id, err := agelib.ParseIdentityFile(_id)
+		if len(ids) == 0 {
+			return fmt.Errorf("no valid identity file found")
+		}
 
-		return agelib.Decrypt(in, out, id...)
+		return agelib.Decrypt(in, out, ids...)
 	},
 }

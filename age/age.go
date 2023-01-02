@@ -1,6 +1,10 @@
 package age
 
 import (
+	"log"
+	"os"
+	"path/filepath"
+
 	"github.com/rwxrob/bonzai/z"
 	"github.com/rwxrob/help"
 )
@@ -19,4 +23,19 @@ var Cmd = &Z.Cmd{
 	Commands: []*Z.Cmd{
 		help.Cmd, keygenCmd, symmetricCmd, asymmetricCmd,
 	},
+}
+
+var defaultAgeDir, sshDir string
+
+func init() {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatalf(
+			"failed to initialise default age directory: %s",
+			err.Error(),
+		)
+	}
+
+	defaultAgeDir = filepath.Join(home, ".age")
+	sshDir = filepath.Join(home, ".ssh")
 }
