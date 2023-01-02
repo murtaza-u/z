@@ -3,7 +3,9 @@ module github.com/murtaza-u/z
 go 1.19
 
 require (
+	filippo.io/age v1.1.1
 	github.com/rwxrob/bonzai v0.20.10
+	github.com/rwxrob/compcmd v0.3.0
 	github.com/rwxrob/compfile v0.1.12
 	github.com/rwxrob/conf v0.8.2
 	github.com/rwxrob/help v0.7.2
@@ -14,6 +16,7 @@ require (
 )
 
 require (
+	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/a8m/envsubst v1.3.0 // indirect
 	github.com/alecthomas/participle/v2 v2.0.0-beta.5 // indirect
 	github.com/dimchansky/utfbom v1.1.1 // indirect
@@ -27,7 +30,6 @@ require (
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mikefarah/yq/v4 v4.30.6 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
-	github.com/rwxrob/compcmd v0.3.0 // indirect
 	github.com/rwxrob/fn v0.4.0 // indirect
 	github.com/rwxrob/fs v0.20.2 // indirect
 	github.com/rwxrob/pegn v0.2.1 // indirect

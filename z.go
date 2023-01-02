@@ -1,6 +1,7 @@
 package z
 
 import (
+	"github.com/murtaza-u/z/age"
 	"github.com/murtaza-u/z/isosec"
 	"github.com/murtaza-u/z/pomo"
 	"github.com/murtaza-u/z/ssh"
@@ -21,5 +22,6 @@ var Cmd = &Z.Cmd{
 	Issues:    `https://github.com/murtaza-u/z/issues`,
 	Commands: []*Z.Cmd{
 		help.Cmd, yq.Cmd, pomo.Cmd, vi.Cmd, isosec.Cmd, ssh.Cmd,
+		age.Cmd,
 	},
 }
