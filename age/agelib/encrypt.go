@@ -8,14 +8,21 @@ import (
 	"filippo.io/age/armor"
 )
 
-func Encrypt(in io.Reader, out io.Writer, recs ...age.Recipient) error {
+func Encrypt(in io.Reader, out io.Writer, arm bool, recs ...age.Recipient) error {
 	if len(recs) == 0 {
 		return fmt.Errorf("missing recipients")
 	}
 
-	a := armor.NewWriter(out)
+	var _out io.Writer
+	_out = out
 
-	w, err := age.Encrypt(a, recs...)
+	if arm {
+		a := armor.NewWriter(out)
+		defer a.Close()
+		_out = a
+	}
+
+	w, err := age.Encrypt(_out, recs...)
 	if err != nil {
 		return err
 	}
@@ -26,11 +33,6 @@ func Encrypt(in io.Reader, out io.Writer, recs ...age.Recipient) error {
 	}
 
 	err = w.Close()
-	if err != nil {
-		return err
-	}
-
-	err = a.Close()
 	if err != nil {
 		return err
 	}

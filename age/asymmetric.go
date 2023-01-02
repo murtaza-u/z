@@ -2,6 +2,7 @@ package age
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/murtaza-u/z/age/agelib"
 	"github.com/rwxrob/bonzai/z"
@@ -60,7 +61,12 @@ var asymmetricEncryptCmd = &Z.Cmd{
 			return err
 		}
 
-		return agelib.Encrypt(in, out, recs...)
+		var armor bool
+		if strings.HasSuffix(_outF, ".asc") {
+			armor = true
+		}
+
+		return agelib.Encrypt(in, out, armor, recs...)
 	},
 }
 

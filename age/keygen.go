@@ -66,7 +66,7 @@ var keygenCmd = &Z.Cmd{
 		in := bytes.NewReader(buf.Bytes())
 		out := new(bytes.Buffer)
 
-		err = agelib.Encrypt(in, out, r)
+		err = agelib.Encrypt(in, out, true, r)
 		if err != nil {
 			return fmt.Errorf(
 				"failed to encrypt private key with passphrase: %w",

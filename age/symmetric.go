@@ -2,6 +2,7 @@ package age
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/murtaza-u/z/age/agelib"
 
@@ -59,7 +60,12 @@ var symmetricEncryptCmd = &Z.Cmd{
 			return err
 		}
 
-		return agelib.Encrypt(in, out, r)
+		var armor bool
+		if strings.HasSuffix(_outF, ".asc") {
+			armor = true
+		}
+
+		return agelib.Encrypt(in, out, armor, r)
 	},
 }
 
