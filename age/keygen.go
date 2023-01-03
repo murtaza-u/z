@@ -22,13 +22,6 @@ var keygenCmd = &Z.Cmd{
 	NumArgs:  1,
 	Usage:    `file`,
 	Call: func(caller *Z.Cmd, args ...string) error {
-		dir, err := Z.Conf.Query(`.age.directory`)
-		if err != nil || dir == "null" {
-			dir = defaultAgeDir
-		}
-
-		os.MkdirAll(dir, 0700)
-
 		k, err := age.GenerateX25519Identity()
 		if err != nil {
 			return err
@@ -38,7 +31,7 @@ var keygenCmd = &Z.Cmd{
 		if _outF == "" {
 			return fmt.Errorf("missing output file")
 		}
-		_outF = filepath.Join(dir, _outF)
+		_outF = filepath.Join(Store, _outF)
 
 		defer func(k *age.X25519Identity) {
 			pub := fmt.Sprintf("%s\n", k.Recipient())

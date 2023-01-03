@@ -93,11 +93,6 @@ var asymmetricDecryptCmd = &Z.Cmd{
 		},
 	},
 	Call: func(caller *Z.Cmd, args ...string) error {
-		dir, err := Z.Conf.Query(`.age.directory`)
-		if err != nil || dir == "null" {
-			dir = defaultAgeDir
-		}
-
 		in, err := agelib.ReadIn(args[0])
 		if err != nil {
 			return err
@@ -117,7 +112,7 @@ var asymmetricDecryptCmd = &Z.Cmd{
 			var privs []string
 
 			// lookup every file under .age
-			filepath.WalkDir(dir, func(path string, _ fs.DirEntry, err error) error {
+			filepath.WalkDir(Store, func(path string, _ fs.DirEntry, err error) error {
 				if err != nil {
 					return err
 				}
@@ -127,7 +122,7 @@ var asymmetricDecryptCmd = &Z.Cmd{
 			})
 
 			// lookup every file under .ssh
-			filepath.WalkDir(sshDir, func(path string, d fs.DirEntry, err error) error {
+			filepath.WalkDir(SSHDir, func(path string, d fs.DirEntry, err error) error {
 				if err != nil {
 					return err
 				}
