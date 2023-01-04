@@ -14,9 +14,8 @@ var Cmd = &Z.Cmd{
 	Name:    `age`,
 	Summary: `encryption tool`,
 	Description: `
-		A simple, modern and secure encryption tool (and Go library)
-		with small explicit keys, no config options, and UNIX-style
-		composability.`,
+		Age is a simple, modern and secure encryption tool with small
+		explicit keys.`,
 	Site:    `https://age-encryption.org`,
 	Source:  `https://github.com/FiloSottile/age`,
 	Issues:  `https://github.com/FiloSottile/age/issues`,
@@ -26,7 +25,7 @@ var Cmd = &Z.Cmd{
 	},
 }
 
-var Store, SSHDir string
+var Store string
 
 func init() {
 	Z.Conf.SoftInit()
@@ -49,6 +48,4 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	SSHDir = filepath.Join(home, ".ssh")
 }

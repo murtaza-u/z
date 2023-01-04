@@ -9,6 +9,7 @@ require (
 	github.com/rwxrob/compfile v0.1.12
 	github.com/rwxrob/conf v0.8.2
 	github.com/rwxrob/fn v0.4.0
+	github.com/rwxrob/fs v0.20.2
 	github.com/rwxrob/help v0.7.2
 	github.com/rwxrob/structs v0.6.0
 	github.com/rwxrob/term v0.2.9
@@ -19,7 +20,6 @@ require (
 )
 
 require (
-	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/a8m/envsubst v1.3.0 // indirect
 	github.com/alecthomas/participle/v2 v2.0.0-beta.5 // indirect
 	github.com/dimchansky/utfbom v1.1.1 // indirect
@@ -33,7 +33,6 @@ require (
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mikefarah/yq/v4 v4.30.6 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
-	github.com/rwxrob/fs v0.20.2 // indirect
 	github.com/rwxrob/pegn v0.2.1 // indirect
 	github.com/rwxrob/to v0.12.1 // indirect
 	golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56 // indirect

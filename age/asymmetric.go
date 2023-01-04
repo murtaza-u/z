@@ -8,7 +8,6 @@ import (
 
 	"github.com/murtaza-u/z/age/agelib"
 
-	"filippo.io/age"
 	"github.com/rwxrob/bonzai/z"
 	"github.com/rwxrob/compfile"
 	"github.com/rwxrob/help"
@@ -60,7 +59,9 @@ var asymmetricEncryptCmd = &Z.Cmd{
 			return fmt.Errorf("missing recipients")
 		}
 
-		recs, err := agelib.GetRecipients(_recs)
+		recs, err := agelib.ParseRecipients(
+			strings.Split(_recs, ",")...,
+		)
 		if err != nil {
 			return err
 		}
@@ -77,7 +78,7 @@ var asymmetricEncryptCmd = &Z.Cmd{
 var asymmetricDecryptCmd = &Z.Cmd{
 	Name:     `decrypt`,
 	Summary:  `asymmetric decryption`,
-	Usage:    `file --identity privkeyfile [--out file]`,
+	Usage:    `file --identity i1,i2,... [--out file]`,
 	Comp:     newComp(),
 	Commands: []*Z.Cmd{help.Cmd},
 	Keys: Z.Keys{
@@ -88,7 +89,7 @@ var asymmetricDecryptCmd = &Z.Cmd{
 		},
 		{
 			Name:  `identity`,
-			Usage: `path to identity file`,
+			Usage: `path to identity file(s)`,
 			Comp:  compfile.New(),
 		},
 	},
@@ -105,41 +106,37 @@ var asymmetricDecryptCmd = &Z.Cmd{
 		}
 		defer out.Close()
 
-		var ids []age.Identity
+		var files []string
 
 		_id := caller.GetVal("identity")
-		if _id == "" {
-			var privs []string
+		if _id != "" {
+			files = append(files, strings.Split(_id, ",")...)
+		}
 
-			// lookup every file under .age
-			filepath.WalkDir(Store, func(path string, _ fs.DirEntry, err error) error {
+		if len(files) == 0 {
+			// lookup every file under age store
+			filepath.WalkDir(Store, func(path string, d fs.DirEntry, err error) error {
 				if err != nil {
 					return err
 				}
-				privs = append(privs, path)
 
-				return nil
-			})
-
-			// lookup every file under .ssh
-			filepath.WalkDir(SSHDir, func(path string, d fs.DirEntry, err error) error {
-				if err != nil {
-					return err
+				if d.IsDir() {
+					return nil
 				}
-				privs = append(privs, path)
+
+				if strings.HasSuffix(d.Name(), ".pub") {
+					return nil
+				}
+
+				files = append(files, path)
 
 				return nil
 			})
+		}
 
-			for _, p := range privs {
-				id, _ := agelib.ParseIdentityFile(p)
-				ids = append(ids, id...)
-			}
-		} else {
-			ids, err = agelib.ParseIdentityFile(_id)
-			if err != nil {
-				return err
-			}
+		ids, err := agelib.ParseIdentities(files...)
+		if err != nil {
+			return fmt.Errorf("failed to parse identity files: %w", err)
 		}
 
 		if len(ids) == 0 {

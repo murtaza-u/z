@@ -34,7 +34,7 @@ var checkCmd = &Z.Cmd{
 			)
 		}
 
-		_, err = agelib.ParseIdentityFile(key)
+		_, err = agelib.ParseIdentities(key)
 		if err != nil {
 			return fmt.Errorf("failed to parse key %q: %w", key, err)
 		}
