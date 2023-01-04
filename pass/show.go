@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/murtaza-u/z/age/agelib"
+
 	Z "github.com/rwxrob/bonzai/z"
 )
 
@@ -33,20 +34,14 @@ var showCmd = &Z.Cmd{
 		}
 		defer in.Close()
 
-		key, err := Z.Conf.Query(".pass.key")
+		c, err := newCfg()
 		if err != nil {
 			return err
 		}
 
-		if key == "null" {
-			return fmt.Errorf(
-				".pass.key (private key) not set in config",
-			)
-		}
-
-		id, err := agelib.ParseIdentities(key)
+		id, err := agelib.ParseIdentities(c.Pass.Keys...)
 		if err != nil {
-			return fmt.Errorf("failed to parse key %q: %w", key, err)
+			return fmt.Errorf("failed to parse keys: %w", err)
 		}
 
 		err = agelib.Decrypt(in, os.Stdout, id...)

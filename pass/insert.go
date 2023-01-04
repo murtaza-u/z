@@ -3,10 +3,11 @@ package pass
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"path/filepath"
 
-	"filippo.io/age"
 	"github.com/murtaza-u/z/age/agelib"
+
 	"github.com/rwxrob/bonzai/z"
 )
 
@@ -20,29 +21,14 @@ var insertCmd = &Z.Cmd{
 			return fmt.Errorf("missing entry name")
 		}
 
-		pub, err := Z.Conf.Query(`.pass.pub`)
+		c, err := newCfg()
 		if err != nil {
 			return err
 		}
 
-		var arm bool
-
-		_arm, err := Z.Conf.Query(`.pass.armor`)
+		recs, err := agelib.ParseRecipients(c.Pass.Pubs...)
 		if err != nil {
-			return err
-		}
-
-		if _arm == "true" {
-			arm = true
-		}
-
-		if pub == "null" {
-			return fmt.Errorf(".pass.pub not set in config")
-		}
-
-		r, err := age.ParseX25519Recipient(pub)
-		if err != nil {
-			return fmt.Errorf("failed to parse public key: %w", err)
+			return fmt.Errorf("failed to parse public keys: %w", err)
 		}
 
 		exists, err := entryExists(entry)
@@ -51,7 +37,12 @@ var insertCmd = &Z.Cmd{
 		}
 
 		if exists {
-			return fmt.Errorf("entry %q exists", entry)
+			y := confirm(fmt.Sprintf(
+				"entry %q exists. Overwrite?", entry,
+			))
+			if !y {
+				return nil
+			}
 		}
 
 		pswd := agelib.ReadHidden("password: ")
@@ -61,14 +52,13 @@ var insertCmd = &Z.Cmd{
 		}
 
 		in := bytes.NewReader([]byte(pswd))
-
-		_outF := filepath.Join(Store, entry)
-		out, err := agelib.OpenOut(_outF)
+		out := new(bytes.Buffer)
+		err = agelib.Encrypt(in, out, c.Pass.Armor, recs...)
 		if err != nil {
 			return err
 		}
-		defer out.Close()
 
-		return agelib.Encrypt(in, out, arm, []age.Recipient{r}...)
+		_outF := filepath.Join(Store, entry)
+		return os.WriteFile(_outF, out.Bytes(), 0600)
 	},
 }

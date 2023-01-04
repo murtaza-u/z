@@ -15,7 +15,7 @@ var Cmd = &Z.Cmd{
 	Summary: `password manager based on AGE`,
 	Commands: []*Z.Cmd{
 		help.Cmd, conf.Cmd, showCmd, checkCmd, insertCmd, deleteCmd,
-		copyCmd,
+		copyCmd, reencryptCmd,
 	},
 }
 

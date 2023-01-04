@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/murtaza-u/z/age/agelib"
-	"github.com/rwxrob/bonzai/z"
 
+	"github.com/rwxrob/bonzai/z"
 	"golang.design/x/clipboard"
 )
 
@@ -35,20 +35,14 @@ var copyCmd = &Z.Cmd{
 		}
 		defer in.Close()
 
-		key, err := Z.Conf.Query(".pass.key")
+		c, err := newCfg()
 		if err != nil {
 			return err
 		}
 
-		if key == "null" {
-			return fmt.Errorf(
-				".pass.key (private key) not set in config",
-			)
-		}
-
-		id, err := agelib.ParseIdentities(key)
+		id, err := agelib.ParseIdentities(c.Pass.Keys...)
 		if err != nil {
-			return fmt.Errorf("failed to parse key %q: %w", key, err)
+			return fmt.Errorf("failed to parse private keys: %w", err)
 		}
 
 		out := new(bytes.Buffer)
