@@ -91,7 +91,7 @@ func parseEncID(b *bufio.Reader, fname string) (age.Identity, error) {
 
 	content, err := io.ReadAll(io.LimitReader(r, PrivateKeySizeLimit))
 	if err != nil {
-		return nil, fmt.Errorf("failed to read %q: %v", fname, err)
+		return nil, fmt.Errorf("failed to read %q: %w", fname, err)
 	}
 
 	if len(content) == PrivateKeySizeLimit {

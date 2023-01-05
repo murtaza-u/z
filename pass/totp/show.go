@@ -1,4 +1,4 @@
-package pass
+package totp
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 var showCmd = &Z.Cmd{
 	Name:    `show`,
 	Aliases: []string{"ls", "list"},
-	Summary: `list entries / decrypt an entry`,
+	Summary: `list entries / generate an otp`,
 	Usage:   `[entry]`,
 	MaxArgs: 1,
 	Comp:    newComp(),
@@ -21,7 +21,7 @@ var showCmd = &Z.Cmd{
 			return err
 		}
 
-		c, err := store.NewConfig([]byte(d), "")
+		c, err := store.NewConfig([]byte(d), SubPath)
 		if err != nil {
 			return err
 		}
@@ -40,7 +40,11 @@ var showCmd = &Z.Cmd{
 			return err
 		}
 
-		fmt.Println(string(out))
+		otp, err := GenOTP(string(out))
+		if err != nil {
+			return fmt.Errorf("failed to generate TOTP: %w", err)
+		}
+		fmt.Println(otp)
 
 		return nil
 	},

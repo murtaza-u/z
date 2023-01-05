@@ -1,4 +1,4 @@
-package pass
+package totp
 
 import (
 	"github.com/murtaza-u/z/pass/store"
@@ -18,7 +18,7 @@ var deleteCmd = &Z.Cmd{
 			return err
 		}
 
-		c, err := store.NewConfig([]byte(d), "")
+		c, err := store.NewConfig([]byte(d), SubPath)
 		if err != nil {
 			return err
 		}

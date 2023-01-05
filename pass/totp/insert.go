@@ -1,6 +1,7 @@
-package pass
+package totp
 
 import (
+	"github.com/murtaza-u/z/age/agelib"
 	"github.com/murtaza-u/z/pass/store"
 
 	"github.com/rwxrob/bonzai/z"
@@ -8,7 +9,7 @@ import (
 
 var insertCmd = &Z.Cmd{
 	Name:    `insert`,
-	Summary: `insert a new password entry`,
+	Summary: `insert new TOTP URI entry`,
 	NumArgs: 1,
 	Call: func(caller *Z.Cmd, args ...string) error {
 		d, err := Z.Conf.Data()
@@ -16,7 +17,7 @@ var insertCmd = &Z.Cmd{
 			return err
 		}
 
-		c, err := store.NewConfig([]byte(d), "")
+		c, err := store.NewConfig([]byte(d), SubPath)
 		if err != nil {
 			return err
 		}
@@ -24,6 +25,11 @@ var insertCmd = &Z.Cmd{
 		e := args[0]
 
 		s := store.New(c)
+		s.InputSecret = func() (string, error) {
+			uri := agelib.ReadHidden("totp uri: ")
+			return uri, nil
+		}
+
 		out, err := s.Insert(e)
 		if err != nil {
 			return err

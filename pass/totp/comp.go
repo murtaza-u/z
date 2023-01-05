@@ -1,4 +1,4 @@
-package pass
+package totp
 
 import (
 	"github.com/murtaza-u/z/pass/store"
@@ -20,7 +20,7 @@ func (comp) Complete(_ bonzai.Command, args ...string) []string {
 		return nil
 	}
 
-	c, err := store.NewConfig([]byte(d), "")
+	c, err := store.NewConfig([]byte(d), SubPath)
 	if err != nil {
 		return nil
 	}

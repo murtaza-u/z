@@ -1,4 +1,4 @@
-package pass
+package totp
 
 import (
 	"fmt"
@@ -10,12 +10,12 @@ import (
 	"golang.design/x/clipboard"
 )
 
-const warning = "password copied to clipboard and will be cleared in 30s. Do *not* exit."
+const warning = "otp copied to clipboard and will be cleared in 30s. Do *not* exit."
 
 var copyCmd = &Z.Cmd{
 	Name:    `copy`,
 	Aliases: []string{"cp"},
-	Summary: `decrypts and copies the password to clipboard`,
+	Summary: `generate and copy otp to clipboard`,
 	Usage:   `entry`,
 	NumArgs: 1,
 	Comp:    newComp(),
@@ -25,7 +25,7 @@ var copyCmd = &Z.Cmd{
 			return err
 		}
 
-		c, err := store.NewConfig([]byte(d), "")
+		c, err := store.NewConfig([]byte(d), SubPath)
 		if err != nil {
 			return err
 		}
@@ -36,12 +36,17 @@ var copyCmd = &Z.Cmd{
 			return err
 		}
 
+		otp, err := GenOTP(string(out))
+		if err != nil {
+			return fmt.Errorf("failed to generate TOTP: %w", err)
+		}
+
 		err = clipboard.Init()
 		if err != nil {
 			return fmt.Errorf("failed to initialise clipboard: %w", err)
 		}
 
-		changed := clipboard.Write(clipboard.FmtText, out)
+		changed := clipboard.Write(clipboard.FmtText, []byte(otp))
 		fmt.Println(warning)
 
 		t := time.NewTimer(time.Second * 30)
