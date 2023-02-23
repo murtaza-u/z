@@ -10,8 +10,7 @@ import (
 )
 
 type Config struct {
-	Pass    pass `yaml:"pass"`
-	subPath string
+	Pass pass `yaml:"pass"`
 }
 
 type pass struct {
@@ -21,14 +20,12 @@ type pass struct {
 	Armor bool     `yaml:"armor"`
 }
 
-func NewConfig(data []byte, subpath string) (*Config, error) {
+func NewConfig(data []byte) (*Config, error) {
 	c := new(Config)
 	err := yaml.Unmarshal([]byte(data), c)
 	if err != nil {
 		return nil, err
 	}
-
-	c.subPath = subpath
 
 	err = c.validate()
 	if err != nil {
@@ -47,13 +44,7 @@ func (c *Config) validate() error {
 
 		c.Pass.Store = filepath.Join(home, ".agepass")
 	}
-
-	_path := c.Pass.Store
-	if c.subPath != "" {
-		_path = filepath.Join(c.Pass.Store, c.subPath)
-	}
-
-	os.MkdirAll(_path, 0700)
+	os.MkdirAll(c.Pass.Store, 0700)
 
 	if len(c.Pass.Pubs) == 0 {
 		return fmt.Errorf(

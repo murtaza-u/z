@@ -16,7 +16,7 @@ var insertCmd = &Z.Cmd{
 			return err
 		}
 
-		c, err := store.NewConfig([]byte(d), "")
+		c, err := store.NewConfig([]byte(d))
 		if err != nil {
 			return err
 		}

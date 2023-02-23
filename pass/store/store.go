@@ -39,11 +39,7 @@ func New(c *Config) *S {
 }
 
 func (s S) GetPath() string {
-	if s.C.subPath == "" {
-		return s.C.Pass.Store
-	}
-
-	return filepath.Join(s.C.Pass.Store, s.C.subPath)
+	return s.C.Pass.Store
 }
 
 func (s S) List() []string {
@@ -51,7 +47,7 @@ func (s S) List() []string {
 
 	var list []string
 
-	err := filepath.WalkDir(path, func(sub string, d fs.DirEntry, err error) error {
+	err := filepath.Walk(path, func(sub string, i fs.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -60,15 +56,15 @@ func (s S) List() []string {
 			return nil
 		}
 
-		if filepath.Dir(sub) != path {
+		if i.IsDir() {
 			return nil
 		}
 
-		if d.IsDir() {
-			return nil
+		rel, err := filepath.Rel(path, sub)
+		if err != nil {
+			return err
 		}
-
-		list = append(list, d.Name())
+		list = append(list, rel)
 
 		return nil
 	})
@@ -85,7 +81,7 @@ func (s S) ListFull() []string {
 
 	var list []string
 
-	err := filepath.WalkDir(path, func(sub string, d fs.DirEntry, err error) error {
+	err := filepath.Walk(path, func(sub string, i fs.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -94,11 +90,7 @@ func (s S) ListFull() []string {
 			return nil
 		}
 
-		if filepath.Dir(sub) != path {
-			return nil
-		}
-
-		if d.IsDir() {
+		if i.IsDir() {
 			return nil
 		}
 
@@ -106,7 +98,6 @@ func (s S) ListFull() []string {
 
 		return nil
 	})
-
 	if err != nil {
 		return nil
 	}
@@ -147,5 +138,7 @@ func (s S) EntryExists(entry string) bool {
 func (s S) WriteEntry(entry string, out []byte) error {
 	path := s.GetPath()
 	path = filepath.Join(path, entry)
+	dir := filepath.Dir(path)
+	os.MkdirAll(dir, 0700)
 	return os.WriteFile(path, out, 0600)
 }

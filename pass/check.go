@@ -18,7 +18,7 @@ var checkCmd = &Z.Cmd{
 			return err
 		}
 
-		_, err = store.NewConfig([]byte(d), "")
+		_, err = store.NewConfig([]byte(d))
 		if err != nil {
 			return err
 		}

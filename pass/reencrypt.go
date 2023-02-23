@@ -22,18 +22,18 @@ var reencryptCmd = &Z.Cmd{
 	Comp:    compfile.New(),
 	MinArgs: 1,
 	Call: func(caller *Z.Cmd, args ...string) error {
-		recs, err := agelib.ParseRecipients(args...)
-		if err != nil {
-			return fmt.Errorf("failed to parse recipients: %w", err)
-		}
-
 		d, err := Z.Conf.Data()
 		if err != nil {
 			return err
 		}
-		c, err := store.NewConfig([]byte(d), "")
+		c, err := store.NewConfig([]byte(d))
 		if err != nil {
 			return err
+		}
+
+		recs, err := agelib.ParseRecipients(args...)
+		if err != nil {
+			return fmt.Errorf("failed to parse recipients: %w", err)
 		}
 
 		ids, err := agelib.ParseIdentities(c.Pass.Keys...)
@@ -42,7 +42,6 @@ var reencryptCmd = &Z.Cmd{
 		}
 
 		var files []string
-
 		err = filepath.WalkDir(c.Pass.Store, func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return err
@@ -60,48 +59,49 @@ var reencryptCmd = &Z.Cmd{
 			return err
 		}
 
-		pstore := c.Pass.Store + ".new"
-		tstore := filepath.Join(pstore, "totp")
+		newStore := c.Pass.Store + ".new"
 		fmt.Printf(
-			"re-encrypted entries will be stored under %s\n", pstore,
+			"re-encrypted entries will be stored under %s\n", newStore,
 		)
 
-		err = os.MkdirAll(tstore, 0700)
+		err = os.MkdirAll(newStore, 0700)
 		if err != nil {
-			return fmt.Errorf("failed to create %q: %w", pstore, err)
+			return fmt.Errorf(
+				"failed to create directory %q: %w", newStore, err,
+			)
 		}
 
 		for _, f := range files {
-			// decrypt entry
-			in, err := os.Open(f)
+			// decrypt file
+			in, err := agelib.ReadIn(f)
 			if err != nil {
-				return fmt.Errorf("failed to open %q: %w", f, err)
+				return err
 			}
 			out := new(bytes.Buffer)
 			err = agelib.Decrypt(in, out, ids...)
 			if err != nil {
 				return fmt.Errorf("failed to decrypt %q: %w", f, err)
 			}
-			in.Close()
 
-			// re-encrypt for new recipients
-			dir := filepath.Dir(f)
-			if strings.HasSuffix(dir, "totp") {
-				dir = tstore
-			} else {
-				dir = pstore
-			}
-
-			noutF := filepath.Join(dir, filepath.Base(f))
-			nout, err := agelib.OpenOut(noutF)
+			path := strings.TrimPrefix(f, c.Pass.Store)
+			path = strings.TrimPrefix(path, string(filepath.Separator))
+			path = filepath.Join(newStore, path)
+			dir := filepath.Dir(path)
+			err = os.MkdirAll(dir, 0700)
 			if err != nil {
 				return err
 			}
 
-			err = agelib.Encrypt(out, nout, c.Pass.Armor, recs...)
+			newOut, err := agelib.OpenOut(path)
+			if err != nil {
+				return err
+			}
+			// re-encrypt for new recipient(s)
+			err = agelib.Encrypt(out, newOut, false, recs...)
 			if err != nil {
 				return fmt.Errorf("failed to re-encrypt %q: %w", f, err)
 			}
+			newOut.Close()
 		}
 
 		return nil

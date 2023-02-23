@@ -18,14 +18,14 @@ var copyCmd = &Z.Cmd{
 	Summary: `decrypts and copies the password to clipboard`,
 	Usage:   `entry`,
 	NumArgs: 1,
-	Comp:    newComp(),
+	Comp:    store.NewComp(),
 	Call: func(caller *Z.Cmd, args ...string) error {
 		d, err := Z.Conf.Data()
 		if err != nil {
 			return err
 		}
 
-		c, err := store.NewConfig([]byte(d), "")
+		c, err := store.NewConfig([]byte(d))
 		if err != nil {
 			return err
 		}

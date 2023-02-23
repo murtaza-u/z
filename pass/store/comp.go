@@ -1,14 +1,13 @@
-package pass
+package store
 
 import (
-	"github.com/murtaza-u/z/pass/store"
 	"github.com/rwxrob/bonzai"
 	Z "github.com/rwxrob/bonzai/z"
 	"github.com/rwxrob/fn/filt"
 	"github.com/rwxrob/structs/set/text/set"
 )
 
-func newComp() *comp {
+func NewComp() *comp {
 	return new(comp)
 }
 
@@ -20,12 +19,12 @@ func (comp) Complete(_ bonzai.Command, args ...string) []string {
 		return nil
 	}
 
-	c, err := store.NewConfig([]byte(d), "")
+	c, err := NewConfig([]byte(d))
 	if err != nil {
 		return nil
 	}
 
-	s := store.New(c)
+	s := New(c)
 
 	entries := s.List()
 	if len(args) == 0 {

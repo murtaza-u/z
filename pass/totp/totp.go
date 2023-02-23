@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/rwxrob/bonzai/z"
 	"github.com/rwxrob/conf"
@@ -16,18 +17,14 @@ import (
 )
 
 const (
-	SubPath = "totp"
-
 	DefaultDigits = "6"
 	DefaultPeriod = "30"
 )
 
 var Cmd = &Z.Cmd{
-	Name:    `totp`,
-	Summary: `generate Time-based One Time Password(TOTP)`,
-	Commands: []*Z.Cmd{
-		help.Cmd, conf.Cmd, showCmd, insertCmd, deleteCmd, copyCmd,
-	},
+	Name:     `totp`,
+	Summary:  `generate Time-based One Time Password(TOTP)`,
+	Commands: []*Z.Cmd{help.Cmd, conf.Cmd, showCmd, copyCmd},
 }
 
 func GenOTP(uri string) (string, error) {
@@ -52,6 +49,7 @@ func GenOTP(uri string) (string, error) {
 	if secret == "" {
 		return "", fmt.Errorf("missing secret in uri")
 	}
+	secret = strings.ToUpper(secret)
 
 	algo := val.Get("algorithm")
 
