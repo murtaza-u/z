@@ -40,7 +40,7 @@ var showCmd = &Z.Cmd{
 			return err
 		}
 
-		fmt.Println(string(out))
+		fmt.Print(string(out))
 
 		return nil
 	},

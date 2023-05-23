@@ -28,6 +28,7 @@ var Cmd = &Z.Cmd{
 }
 
 func GenOTP(uri string) (string, error) {
+	uri = strings.TrimSpace(uri)
 	u, err := url.Parse(uri)
 	if err != nil {
 		return "", fmt.Errorf("failed to parse URI: %w", err)
