@@ -11,18 +11,19 @@ import (
 	"github.com/murtaza-u/z/age/agelib"
 	"github.com/murtaza-u/z/pass/store"
 
-	"github.com/rwxrob/bonzai/z"
-	"github.com/rwxrob/compfile"
+	"github.com/murtaza-u/conf"
+	"github.com/urfave/cli/v2"
 )
 
-var reencryptCmd = &Z.Cmd{
-	Name:    `reencrypt`,
-	Summary: `re-encrypt all secrets for different recipients`,
-	Usage:   `r1 r2 r3...`,
-	Comp:    compfile.New(),
-	MinArgs: 1,
-	Call: func(caller *Z.Cmd, args ...string) error {
-		d, err := Z.Conf.Data()
+var reEncryptCmd = &cli.Command{
+	Name:      "re-encrypt",
+	Usage:     "re-encrypt all secrets for different recipients",
+	UsageText: "r1 r2 r3...",
+	Action: func(ctx *cli.Context) error {
+		conf := conf.New()
+		conf.MustInit()
+
+		d, err := conf.Data()
 		if err != nil {
 			return err
 		}
@@ -31,7 +32,7 @@ var reencryptCmd = &Z.Cmd{
 			return err
 		}
 
-		recs, err := agelib.ParseRecipients(args...)
+		recs, err := agelib.ParseRecipients(ctx.Args().Slice()...)
 		if err != nil {
 			return fmt.Errorf("failed to parse recipients: %w", err)
 		}
@@ -42,19 +43,20 @@ var reencryptCmd = &Z.Cmd{
 		}
 
 		var files []string
-		err = filepath.WalkDir(c.Pass.Store, func(path string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
+		err = filepath.WalkDir(c.Pass.Store,
+			func(path string, d fs.DirEntry, err error) error {
+				if err != nil {
+					return err
+				}
 
-			if d.IsDir() {
+				if d.IsDir() {
+					return nil
+				}
+
+				files = append(files, path)
+
 				return nil
-			}
-
-			files = append(files, path)
-
-			return nil
-		})
+			})
 		if err != nil {
 			return err
 		}

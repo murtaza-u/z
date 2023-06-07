@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
-	"github.com/rwxrob/term"
+	"github.com/seehuhn/password"
 )
 
 func ReadIn(fname string) (io.Reader, error) {
 	if fname == "" {
-		return nil, fmt.Errorf("missing file")
+		fname = os.Stdin.Name()
 	}
 
 	f, err := os.OpenFile(fname, os.O_RDONLY, 0600)
@@ -39,13 +40,13 @@ func OpenOut(fname string) (io.WriteCloser, error) {
 	return out, nil
 }
 
-func ReadHidden(form string, args ...any) string {
-	var pswd string
+func ReadHidden(form string, args ...string) string {
+	prompt := strings.Join(append([]string{form}, args...), " ")
 
-	for pswd == "" {
-		pswd = term.PromptHidden(form, args...)
-		fmt.Println()
+	var pswd []byte
+	for pswd == nil || len(pswd) == 0 {
+		pswd, _ = password.Read(prompt)
 	}
 
-	return pswd
+	return string(pswd)
 }

@@ -4,29 +4,28 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/rwxrob/bonzai/z"
-	"github.com/rwxrob/help"
+	"github.com/urfave/cli/v2"
 )
 
 const Format = "20060102150405"
 
-var Cmd = &Z.Cmd{
-	Name:     `isosec`,
-	Summary:  `create/parse isosec identifiers (YYYYMMDDhhmmss)`,
-	Commands: []*Z.Cmd{help.Cmd, parseCmd},
-	Call: func(caller *Z.Cmd, args ...string) error {
+var Cmd = &cli.Command{
+	Name:        "isosec",
+	Usage:       "create/parse isosec identifiers (YYYYMMDDhhmmss)",
+	Subcommands: []*cli.Command{parseCmd},
+	Action: func(ctx *cli.Context) error {
 		t := time.Now().UTC().Format(Format)
 		fmt.Println(t)
 		return nil
 	},
 }
 
-var parseCmd = &Z.Cmd{
-	Name:    `parse`,
-	Summary: `parse isosec indentifier`,
-	NumArgs: 1,
-	Call: func(caller *Z.Cmd, args ...string) error {
-		arg := args[0]
+var parseCmd = &cli.Command{
+	Name:      "parse",
+	Usage:     "parse isosec indentifier",
+	UsageText: "isosec-id",
+	Action: func(ctx *cli.Context) error {
+		arg := ctx.Args().First()
 		if arg == "" {
 			return fmt.Errorf("missing argument")
 		}
@@ -35,7 +34,6 @@ var parseCmd = &Z.Cmd{
 		if err != nil {
 			return fmt.Errorf("invalid isosec id %s", arg)
 		}
-
 		fmt.Printf("UTC: %v\nLocal: %v\n", t, t.Local())
 
 		return nil

@@ -3,65 +3,78 @@ package age
 import (
 	"fmt"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/murtaza-u/z/age/agelib"
 
-	"github.com/rwxrob/bonzai/z"
-	"github.com/rwxrob/compfile"
-	"github.com/rwxrob/help"
+	"github.com/urfave/cli/v2"
 )
 
-var asymmetricCmd = &Z.Cmd{
-	Name:    `asymmetric`,
-	Summary: `asymmetric encryption/decryption`,
-	Usage:   `(encrypt|decrypt) file [--out file]`,
-	Commands: []*Z.Cmd{
-		help.Cmd, asymmetricEncryptCmd, asymmetricDecryptCmd,
+var asymmetricCmd = &cli.Command{
+	Name:      "asymmetric",
+	Usage:     "asymmetric encryption/decryption",
+	UsageText: "(encrypt|decrypt) FILE [--out FILE]",
+	Subcommands: []*cli.Command{
+		asymmetricEncryptCmd, asymmetricDecryptCmd,
 	},
 }
 
-var asymmetricEncryptCmd = &Z.Cmd{
-	Name:     `encrypt`,
-	Summary:  `asymmetric encryption`,
-	Usage:    `file --recipients r1,r2,... [--out file]`,
-	Comp:     newComp(),
-	Commands: []*Z.Cmd{help.Cmd},
-	Keys: Z.Keys{
-		{
-			Name:  `out`,
-			Usage: `write result to a file`,
-			Comp:  compfile.New(),
+var asymmetricEncryptCmd = &cli.Command{
+	Name:      "encrypt",
+	Usage:     "asymmetric encryption",
+	UsageText: "FILE --recipient r1,r2,... [--out FILE]",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:      `out`,
+			Aliases:   []string{"o"},
+			Usage:     "write result to a `FILE`",
+			TakesFile: true,
 		},
-		{
-			Name:  `recipients`,
-			Usage: `comma seperated recipients / recipient's file`,
-			Comp:  compfile.New(),
+		&cli.StringFlag{
+			Name:     "recipient",
+			Aliases:  []string{"r"},
+			Usage:    "comma-seperated list of recipient",
+			Required: true,
 		},
 	},
-	MinArgs: 1,
-	Call: func(caller *Z.Cmd, args ...string) error {
-		in, err := agelib.ReadIn(args[0])
+	Action: func(ctx *cli.Context) error {
+		arg := ctx.Args().First()
+		if arg == "" {
+			arg = os.Stdin.Name()
+		}
+
+		in, err := agelib.ReadIn(arg)
 		if err != nil {
 			return err
 		}
 
-		_outF := caller.GetVal("out")
+		_outF := ctx.String("out")
 		out, err := agelib.OpenOut(_outF)
 		if err != nil {
 			return err
 		}
 		defer out.Close()
 
-		_recs := caller.GetVal("recipients")
+		_recs := ctx.String("recipient")
 		if _recs == "" {
 			return fmt.Errorf("missing recipients")
 		}
 
-		recs, err := agelib.ParseRecipients(
-			strings.Split(_recs, ",")...,
-		)
+		recsList := strings.Split(_recs, ",")
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return fmt.Errorf(
+				"failed to determine user's home directory: %w", err)
+		}
+		for i := 0; i < len(recsList); i++ {
+			if strings.HasPrefix(recsList[i], "~") {
+				recsList[i] = strings.Replace(recsList[i], "~", home, 1)
+			}
+		}
+
+		recs, err := agelib.ParseRecipients(recsList...)
 		if err != nil {
 			return err
 		}
@@ -75,31 +88,36 @@ var asymmetricEncryptCmd = &Z.Cmd{
 	},
 }
 
-var asymmetricDecryptCmd = &Z.Cmd{
-	Name:     `decrypt`,
-	Summary:  `asymmetric decryption`,
-	Usage:    `file --identity i1,i2,... [--out file]`,
-	Comp:     newComp(),
-	Commands: []*Z.Cmd{help.Cmd},
-	Keys: Z.Keys{
-		{
-			Name:  `out`,
-			Usage: `write result to a file`,
-			Comp:  compfile.New(),
+var asymmetricDecryptCmd = &cli.Command{
+	Name:      "decrypt",
+	Usage:     "asymmetric decryption",
+	UsageText: "FILE [--identity i1,i2,...] [--out FILE]",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:      "out",
+			Aliases:   []string{"o"},
+			Usage:     "write result to a `FILE`",
+			TakesFile: true,
 		},
-		{
-			Name:  `identity`,
-			Usage: `path to identity file(s)`,
-			Comp:  compfile.New(),
+		&cli.StringFlag{
+			Name:      "identity",
+			Aliases:   []string{"i"},
+			Usage:     "comma-seperated list of identity `FILE`",
+			TakesFile: true,
 		},
 	},
-	Call: func(caller *Z.Cmd, args ...string) error {
-		in, err := agelib.ReadIn(args[0])
+	Action: func(ctx *cli.Context) error {
+		arg := ctx.Args().First()
+		if arg == "" {
+			arg = os.Stdin.Name()
+		}
+
+		in, err := agelib.ReadIn(arg)
 		if err != nil {
 			return err
 		}
 
-		_outF := caller.GetVal("out")
+		_outF := ctx.String("out")
 		out, err := agelib.OpenOut(_outF)
 		if err != nil {
 			return err
@@ -108,9 +126,19 @@ var asymmetricDecryptCmd = &Z.Cmd{
 
 		var files []string
 
-		_id := caller.GetVal("identity")
+		_id := ctx.String("identity")
 		if _id != "" {
-			files = append(files, strings.Split(_id, ",")...)
+			home, err := os.UserHomeDir()
+			if err != nil {
+				return fmt.Errorf(
+					"failed to determine user's home directory: %w", err)
+			}
+			for _, f := range strings.Split(_id, ",") {
+				if strings.HasPrefix(f, "~") {
+					f = strings.Replace(f, "~", home, 1)
+				}
+				files = append(files, f)
+			}
 		}
 
 		if len(files) == 0 {

@@ -4,31 +4,27 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/rwxrob/bonzai/z"
-	"github.com/rwxrob/compfile"
-	"github.com/rwxrob/help"
+	"github.com/urfave/cli/v2"
 )
 
-var Cmd = &Z.Cmd{
-	Name:     `ssh`,
-	Summary:  `ssh client`,
-	Usage:    `destination [command]`,
-	Commands: []*Z.Cmd{help.Cmd},
-	Keys: Z.Keys{
-		{
-			Name:  `key`,
-			Usage: `path to private key`,
-			Comp:  compfile.New(),
+var Cmd = &cli.Command{
+	Name:      "ssh",
+	Usage:     "ssh client",
+	UsageText: "destination [--key FILE]",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:      "key",
+			Usage:     "path to private key `FILE`",
+			TakesFile: true,
 		},
 	},
-	MinArgs: 1,
-	Call: func(caller *Z.Cmd, args ...string) error {
-		dst := args[0]
+	Action: func(ctx *cli.Context) error {
+		dst := ctx.Args().First()
 		if dst == "" {
 			return fmt.Errorf("missing destination")
 		}
 
-		privF := caller.GetVal("key")
+		privF := ctx.String("key")
 		method, err := Auth(privF)
 		if err != nil {
 			return err
@@ -51,25 +47,21 @@ var Cmd = &Z.Cmd{
 
 		go s.HandleSignals()
 
-		if len(args) == 1 {
+		if ctx.NArg() == 1 {
 			err := s.Shell()
 			if err != nil {
 				fmt.Println(err.Error())
 			}
-
 			s.WaitAndClose()
-
 			return nil
 		}
 
-		cmd := strings.Join(args[1:], " ")
+		cmd := strings.Join(ctx.Args().Tail(), " ")
 		err = s.Run(cmd)
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-
 		s.CloseAndWaith()
-
 		return nil
 	},
 }

@@ -1,19 +1,22 @@
 package pass
 
 import (
+	"github.com/murtaza-u/conf"
 	"github.com/murtaza-u/z/pass/store"
-	"github.com/rwxrob/bonzai/z"
+	"github.com/urfave/cli/v2"
 )
 
-var deleteCmd = &Z.Cmd{
-	Name:    `delete`,
-	Aliases: []string{"rm"},
-	Summary: `delete an entry`,
-	Usage:   `entry`,
-	MinArgs: 1,
-	Comp:    store.NewComp(),
-	Call: func(caller *Z.Cmd, args ...string) error {
-		d, err := Z.Conf.Data()
+var deleteCmd = &cli.Command{
+	Name:         "delete",
+	Aliases:      []string{"rm"},
+	Usage:        "delete an entry",
+	UsageText:    "delete ENTRY",
+	BashComplete: store.Comp,
+	Action: func(ctx *cli.Context) error {
+		conf := conf.New()
+		conf.MustInit()
+
+		d, err := conf.Data()
 		if err != nil {
 			return err
 		}
@@ -24,6 +27,6 @@ var deleteCmd = &Z.Cmd{
 		}
 		s := store.New(c)
 
-		return s.Delete(args...)
+		return s.Delete(ctx.Args().Slice()...)
 	},
 }

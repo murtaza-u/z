@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/rwxrob/bonzai/z"
-	"github.com/rwxrob/conf"
-	"github.com/rwxrob/help"
-	"github.com/rwxrob/vars"
+	"github.com/murtaza-u/conf"
+	"github.com/murtaza-u/conf/vars"
+	"github.com/urfave/cli/v2"
 )
 
 const (
@@ -16,29 +15,32 @@ const (
 	DefaultPrefixWarn = "💢"
 )
 
-var Cmd = &Z.Cmd{
-	Name:    `pomo`,
-	Summary: `sets or prints a countdown timer (with tomato)`,
+var Cmd = &cli.Command{
+	Name:      "pomo",
+	Usage:     "sets or prints a countdown timer (with tomato)",
+	UsageText: "pomo [start|stop|add] [arguments]",
 	Description: `The Pomodoro technique is a simple yet effective tool
-		for focused work with planned breaks in between. Francesco
-		Cirillo coined the term "pomodoro" which translates to tomato,
-		in the late 1980s after the tomato-shaped timer he used as a
-		university student.`,
-	Commands: []*Z.Cmd{
-		help.Cmd, conf.Cmd, vars.Cmd, startCmd, stopCmd, addCmd,
-	},
-	Call: func(caller *Z.Cmd, args ...string) error {
-		endt := Z.Vars.Get(".pomo.endt")
-		if endt == "null" {
+for focused work with planned breaks in between. Francesco Cirillo
+coined the term "pomodoro" which translates to tomato, in the late
+1980s after the tomato-shaped timer he used as a university
+student.`,
+	Subcommands: []*cli.Command{startCmd, stopCmd, addCmd},
+	Action: func(ctx *cli.Context) error {
+		vars := vars.New()
+		vars.Init()
+		conf := conf.New()
+
+		endt := vars.Get(".pomo.endt")
+		if endt == "" {
 			return nil
 		}
 
-		prefix, err := Z.Conf.Query(".pomo.prefix")
+		prefix, err := conf.Query(".pomo.prefix")
 		if err != nil || prefix == "null" {
 			prefix = DefaultPrefix
 		}
 
-		warn, err := Z.Conf.Query(".pomo.prefixWarn")
+		warn, err := conf.Query(".pomo.prefixWarn")
 		if err != nil || warn == "null" {
 			warn = DefaultPrefixWarn
 		}
@@ -59,9 +61,4 @@ var Cmd = &Z.Cmd{
 
 		return nil
 	},
-}
-
-func init() {
-	Z.Vars.SoftInit()
-	Z.Conf.SoftInit()
 }

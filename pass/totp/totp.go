@@ -10,9 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/rwxrob/bonzai/z"
-	"github.com/rwxrob/conf"
-	"github.com/rwxrob/help"
+	"github.com/urfave/cli/v2"
 	"github.com/xlzd/gotp"
 )
 
@@ -21,10 +19,10 @@ const (
 	DefaultPeriod = "30"
 )
 
-var Cmd = &Z.Cmd{
-	Name:     `totp`,
-	Summary:  `generate Time-based One Time Password(TOTP)`,
-	Commands: []*Z.Cmd{help.Cmd, conf.Cmd, showCmd, copyCmd},
+var Cmd = &cli.Command{
+	Name:        "totp",
+	Usage:       "generate Time-based One Time Password(TOTP)",
+	Subcommands: []*cli.Command{showCmd, copyCmd},
 }
 
 func GenOTP(uri string) (string, error) {
@@ -100,8 +98,4 @@ func GenOTP(uri string) (string, error) {
 func isTOTP(uri string) bool {
 	reg := regexp.MustCompile(`otpauth://totp/.*`)
 	return reg.MatchString(uri)
-}
-
-func init() {
-	Z.Conf.SoftInit()
 }

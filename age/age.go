@@ -5,37 +5,30 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/rwxrob/bonzai/z"
-	"github.com/rwxrob/conf"
-	"github.com/rwxrob/help"
+	"github.com/murtaza-u/conf"
+	"github.com/urfave/cli/v2"
 )
 
-var Cmd = &Z.Cmd{
-	Name:    `age`,
-	Summary: `encryption tool`,
-	Description: `
-		Age is a simple, modern and secure encryption tool with small
-		explicit keys.`,
-	Site:    `https://age-encryption.org`,
-	Source:  `https://github.com/FiloSottile/age`,
-	Issues:  `https://github.com/FiloSottile/age/issues`,
-	License: `BSD-3-Clause`,
-	Commands: []*Z.Cmd{
-		help.Cmd, conf.Cmd, keygenCmd, symmetricCmd, asymmetricCmd,
-	},
+var Cmd = &cli.Command{
+	Name:  "age",
+	Usage: "encryption tool",
+	Description: `Age is a simple, modern and secure encryption tool
+with small explicit keys.`,
+	Subcommands: []*cli.Command{keygenCmd, symmetricCmd, asymmetricCmd},
 }
 
 var Store string
 
 func init() {
-	Z.Conf.SoftInit()
+	conf := conf.New()
+	conf.Init()
 
 	home, err := os.UserHomeDir()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	_store, err := Z.Conf.Query(".age.store")
+	_store, err := conf.Query(".age.store")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -112,9 +112,8 @@ func newEncID(fname string, content []byte) *encID {
 	return &encID{
 		content: content,
 		passphrase: func() (string, error) {
-			pswd := ReadHidden(
-				"passphrase for identity file %q: ", fname,
-			)
+			pswd := ReadHidden(fmt.Sprintf(
+				"passphrase for identity file %q: ", fname))
 			return pswd, nil
 		},
 		warning: func() {

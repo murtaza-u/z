@@ -1,9 +1,0 @@
-go 1.20
-
-use (
-	.
-	../bonzai
-	../compcmd
-	../compfile
-	../help
-)
