@@ -4,21 +4,18 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/rwxrob/term"
+	"github.com/seehuhn/password"
 	"golang.org/x/crypto/ssh"
 )
 
 func Auth(privF string) ([]ssh.AuthMethod, error) {
 	if privF == "" {
-		var pswd string
-
-		fmt.Print("Enter password: ")
-		for pswd == "" {
-			pswd = term.ReadHidden()
+		pswd, err := password.Read("passwd: ")
+		if err != nil {
+			return nil, fmt.Errorf("unable to get password: %w", err)
 		}
-
 		return []ssh.AuthMethod{
-			ssh.Password(pswd),
+			ssh.Password(string(pswd)),
 		}, nil
 	}
 

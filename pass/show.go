@@ -2,21 +2,25 @@ package pass
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/murtaza-u/z/pass/store"
 
-	Z "github.com/rwxrob/bonzai/z"
+	"github.com/murtaza-u/conf"
+	"github.com/urfave/cli/v2"
 )
 
-var showCmd = &Z.Cmd{
-	Name:    `show`,
-	Aliases: []string{"ls", "list"},
-	Summary: `list entries / decrypt an entry`,
-	Usage:   `[entry]`,
-	MaxArgs: 1,
-	Comp:    store.NewComp(),
-	Call: func(caller *Z.Cmd, args ...string) error {
-		d, err := Z.Conf.Data()
+var showCmd = &cli.Command{
+	Name:         "show",
+	Aliases:      []string{"ls", "list"},
+	Usage:        "list entries / decrypt an entry",
+	UsageText:    "show [ENTRY]",
+	BashComplete: store.Comp,
+	Action: func(ctx *cli.Context) error {
+		conf := conf.New()
+		conf.MustInit()
+
+		d, err := conf.Data()
 		if err != nil {
 			return err
 		}
@@ -27,20 +31,19 @@ var showCmd = &Z.Cmd{
 		}
 		s := store.New(c)
 
-		if len(args) == 0 || args[0] == "" {
+		arg := ctx.Args().First()
+		if arg == "" {
 			for _, l := range s.List() {
 				fmt.Println(l)
 			}
-
 			return nil
 		}
 
-		out, err := s.Decrypt(args[0])
+		out, err := s.Decrypt(arg)
 		if err != nil {
 			return err
 		}
-
-		fmt.Print(string(out))
+		fmt.Println(strings.TrimSpace(string(out)))
 
 		return nil
 	},

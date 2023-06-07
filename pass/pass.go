@@ -3,20 +3,14 @@ package pass
 import (
 	"github.com/murtaza-u/z/pass/totp"
 
-	"github.com/rwxrob/bonzai/z"
-	"github.com/rwxrob/conf"
-	"github.com/rwxrob/help"
+	"github.com/urfave/cli/v2"
 )
 
-var Cmd = &Z.Cmd{
-	Name:    `pass`,
-	Summary: `password manager based on AGE`,
-	Commands: []*Z.Cmd{
-		help.Cmd, conf.Cmd, showCmd, checkCmd, insertCmd, deleteCmd,
-		copyCmd, reencryptCmd, totp.Cmd,
+var Cmd = &cli.Command{
+	Name:  "pass",
+	Usage: "password manager based on AGE",
+	Subcommands: []*cli.Command{
+		showCmd, checkCmd, insertCmd, deleteCmd, copyCmd, reEncryptCmd,
+		totp.Cmd,
 	},
-}
-
-func init() {
-	Z.Conf.SoftInit()
 }

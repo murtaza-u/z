@@ -4,23 +4,26 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/murtaza-u/conf"
 	"github.com/murtaza-u/z/pass/store"
 
-	"github.com/rwxrob/bonzai/z"
+	"github.com/urfave/cli/v2"
 	"golang.design/x/clipboard"
 )
 
 const warning = "otp copied to clipboard and will be cleared in 30s. Do *not* exit."
 
-var copyCmd = &Z.Cmd{
-	Name:    `copy`,
-	Aliases: []string{"cp"},
-	Summary: `generate and copy otp to clipboard`,
-	Usage:   `entry`,
-	NumArgs: 1,
-	Comp:    store.NewComp(),
-	Call: func(caller *Z.Cmd, args ...string) error {
-		d, err := Z.Conf.Data()
+var copyCmd = &cli.Command{
+	Name:         "copy",
+	Aliases:      []string{"cp"},
+	Usage:        "generate and copy otp to clipboard",
+	UsageText:    "copy ENTRY",
+	BashComplete: store.Comp,
+	Action: func(ctx *cli.Context) error {
+		conf := conf.New()
+		conf.MustInit()
+
+		d, err := conf.Data()
 		if err != nil {
 			return err
 		}
@@ -31,7 +34,7 @@ var copyCmd = &Z.Cmd{
 		}
 		s := store.New(c)
 
-		out, err := s.Decrypt(args[0])
+		out, err := s.Decrypt(ctx.Args().First())
 		if err != nil {
 			return err
 		}

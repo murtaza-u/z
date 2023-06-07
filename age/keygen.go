@@ -10,24 +10,21 @@ import (
 	"github.com/murtaza-u/z/age/agelib"
 
 	"filippo.io/age"
-	"github.com/rwxrob/bonzai/z"
-	"github.com/rwxrob/help"
-	"github.com/rwxrob/term"
+	"github.com/seehuhn/password"
+	"github.com/urfave/cli/v2"
 )
 
-var keygenCmd = &Z.Cmd{
-	Name:     `keygen`,
-	Summary:  `generates AGE public-private key pair`,
-	Commands: []*Z.Cmd{help.Cmd},
-	NumArgs:  1,
-	Usage:    `file`,
-	Call: func(caller *Z.Cmd, args ...string) error {
+var keygenCmd = &cli.Command{
+	Name:      "keygen",
+	Usage:     "generates AGE public-private key pair",
+	UsageText: "keygen NAME",
+	Action: func(ctx *cli.Context) error {
 		k, err := age.GenerateX25519Identity()
 		if err != nil {
 			return err
 		}
 
-		_outF := args[0]
+		_outF := ctx.Args().First()
 		if _outF == "" {
 			return fmt.Errorf("missing output file")
 		}
@@ -38,16 +35,20 @@ var keygenCmd = &Z.Cmd{
 			os.WriteFile(_outF+".pub", []byte(pub), 0600)
 		}(k)
 
-		pswd := term.PromptHidden("passphrase (optional): ")
-		fmt.Println()
-
-		var _pswd string
-		if pswd != "" {
-			_pswd = term.PromptHidden("confirm passphrase: ")
-			fmt.Println()
+		pswd, err := password.Read("passphrase (optional): ")
+		if err != nil {
+			return fmt.Errorf("failed to read passphrase")
 		}
 
-		if pswd != _pswd {
+		var _pswd []byte
+		if pswd != nil && len(pswd) != 0 {
+			_pswd, err = password.Read("confirm passphrase: ")
+			if err != nil {
+				return fmt.Errorf("failed to read passphrase")
+			}
+		}
+
+		if bytes.Compare(pswd, _pswd) != 0 {
 			return fmt.Errorf("passphrases do not match. Aborting!")
 		}
 
@@ -56,11 +57,11 @@ var keygenCmd = &Z.Cmd{
 		fmt.Fprintf(buf, "# public key: %s\n", k.Recipient())
 		fmt.Fprintf(buf, "%s\n", k)
 
-		if pswd == "" {
+		if pswd == nil || len(pswd) == 0 {
 			return os.WriteFile(_outF, buf.Bytes(), 0600)
 		}
 
-		r, err := age.NewScryptRecipient(pswd)
+		r, err := age.NewScryptRecipient(string(pswd))
 		if err != nil {
 			return err
 		}
@@ -72,8 +73,7 @@ var keygenCmd = &Z.Cmd{
 		if err != nil {
 			return fmt.Errorf(
 				"failed to encrypt private key with passphrase: %w",
-				err,
-			)
+				err)
 		}
 
 		return os.WriteFile(_outF, out.Bytes(), 0600)

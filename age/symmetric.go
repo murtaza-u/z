@@ -1,61 +1,71 @@
 package age
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 
 	"github.com/murtaza-u/z/age/agelib"
 
 	"filippo.io/age"
-	"github.com/rwxrob/bonzai/z"
-	"github.com/rwxrob/compfile"
-	"github.com/rwxrob/help"
+	"github.com/seehuhn/password"
+	"github.com/urfave/cli/v2"
 )
 
-var symmetricCmd = &Z.Cmd{
-	Name:    `symmetric`,
-	Summary: `symmetric encryption/decryption`,
-	Usage:   `(encrypt|decrypt) file [--out file]`,
-	Commands: []*Z.Cmd{
-		help.Cmd, symmetricEncryptCmd, symmetricDecryptCmd,
+var symmetricCmd = &cli.Command{
+	Name:      "symmetric",
+	Usage:     "symmetric encryption/decryption",
+	UsageText: "symmetric (encrypt|decrypt) FILE [--out file]",
+	Subcommands: []*cli.Command{
+		symmetricEncryptCmd, symmetricDecryptCmd,
 	},
 }
 
-var symmetricEncryptCmd = &Z.Cmd{
-	Name:     `encrypt`,
-	Summary:  `symmetric encryption`,
-	Comp:     newComp(),
-	Commands: []*Z.Cmd{help.Cmd},
-	Usage:    `file [--out file]`,
-	NumArgs:  1,
-	Keys: Z.Keys{
-		{
-			Name:  `out`,
-			Usage: `write result to a file`,
-			Comp:  compfile.New(),
+var symmetricEncryptCmd = &cli.Command{
+	Name:      "encrypt",
+	Usage:     "symmetric encryption",
+	UsageText: "FILE [--out FILE]",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:      "out",
+			Aliases:   []string{"o"},
+			Usage:     "write result to a `FILE`",
+			TakesFile: true,
 		},
 	},
-	MinArgs: 1,
-	Call: func(caller *Z.Cmd, args ...string) error {
-		in, err := agelib.ReadIn(args[0])
-		if err != nil {
-			return err
+	Action: func(ctx *cli.Context) error {
+		arg := ctx.Args().First()
+		if arg == "" {
+			return fmt.Errorf("missing file to encrypt")
 		}
 
-		_outF := caller.GetVal("out")
+		_outF := ctx.String("out")
 		out, err := agelib.OpenOut(_outF)
 		if err != nil {
 			return err
 		}
 		defer out.Close()
 
-		pswd := agelib.ReadHidden("password: ")
-		_pswd := agelib.ReadHidden("confirm password: ")
-		if _pswd != pswd {
+		in, err := agelib.ReadIn(arg)
+		if err != nil {
+			return err
+		}
+
+		pswd, err := password.Read("password: ")
+		if err != nil {
+			return fmt.Errorf("unable to get password: %w", err)
+		}
+
+		_pswd, err := password.Read("confirm password: ")
+		if err != nil {
+			return fmt.Errorf("unable to get password: %w", err)
+		}
+
+		if bytes.Compare(pswd, _pswd) != 0 {
 			return fmt.Errorf("passwords do not match")
 		}
 
-		r, err := age.NewScryptRecipient(pswd)
+		r, err := age.NewScryptRecipient(string(pswd))
 		if err != nil {
 			return err
 		}
@@ -69,36 +79,42 @@ var symmetricEncryptCmd = &Z.Cmd{
 	},
 }
 
-var symmetricDecryptCmd = &Z.Cmd{
-	Name:     `decrypt`,
-	Summary:  `symmetric decryption`,
-	Comp:     newComp(),
-	Commands: []*Z.Cmd{help.Cmd},
-	Usage:    `file [--out file]`,
-	NumArgs:  1,
-	Keys: Z.Keys{
-		{
-			Name:  `out`,
-			Usage: `write result to a file`,
-			Comp:  compfile.New(),
+var symmetricDecryptCmd = &cli.Command{
+	Name:      "decrypt",
+	Usage:     "symmetric decryption",
+	UsageText: "FILE [--out FILE]",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:      "out",
+			Aliases:   []string{"o"},
+			Usage:     "write result to a `FILE`",
+			TakesFile: true,
 		},
 	},
-	Call: func(caller *Z.Cmd, args ...string) error {
-		in, err := agelib.ReadIn(args[0])
+	Action: func(ctx *cli.Context) error {
+		arg := ctx.Args().First()
+		if arg == "" {
+			return fmt.Errorf("missing file to decrypt")
+		}
+
+		in, err := agelib.ReadIn(arg)
 		if err != nil {
 			return err
 		}
 
-		_outF := caller.GetVal("out")
+		_outF := ctx.String("out")
 		out, err := agelib.OpenOut(_outF)
 		if err != nil {
 			return err
 		}
 		defer out.Close()
 
-		pswd := agelib.ReadHidden("password: ")
+		pswd, err := password.Read("password: ")
+		if err != nil {
+			return fmt.Errorf("unable to get password: %w", err)
+		}
 
-		i, err := age.NewScryptIdentity(pswd)
+		i, err := age.NewScryptIdentity(string(pswd))
 		if err != nil {
 			return err
 		}

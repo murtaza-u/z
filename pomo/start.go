@@ -4,22 +4,26 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/rwxrob/bonzai/z"
+	"github.com/murtaza-u/conf"
+	"github.com/murtaza-u/conf/vars"
+	"github.com/urfave/cli/v2"
 )
 
-var startCmd = &Z.Cmd{
-	Name:    `start`,
-	Usage:   `duration(optional)`,
-	Summary: `start the countdown timer`,
-	MaxArgs: 1,
-	Call: func(caller *Z.Cmd, args ...string) error {
-		_dur, err := Z.Conf.Query(".pomo.duration")
+var startCmd = &cli.Command{
+	Name:      "start",
+	Usage:     "start the countdown timer",
+	UsageText: "start [duration]",
+	Action: func(ctx *cli.Context) error {
+		conf := conf.New()
+		vars := vars.New()
+
+		_dur, err := conf.Query(".pomo.duration")
 		if err != nil || _dur == "null" {
 			_dur = DefaultDuration
 		}
 
-		if len(args) > 0 {
-			_dur = args[0]
+		if arg := ctx.Args().First(); arg != "" {
+			_dur = arg
 		}
 
 		dur, err := time.ParseDuration(_dur)
@@ -28,7 +32,6 @@ var startCmd = &Z.Cmd{
 		}
 
 		endt := time.Now().Add(dur).Format(time.RFC3339)
-
-		return Z.Vars.Set(".pomo.endt", endt)
+		return vars.Set(".pomo.endt", endt)
 	},
 }

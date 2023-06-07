@@ -1,17 +1,22 @@
 package pass
 
 import (
+	"github.com/murtaza-u/conf"
 	"github.com/murtaza-u/z/pass/store"
 
-	"github.com/rwxrob/bonzai/z"
+	"github.com/urfave/cli/v2"
 )
 
-var insertCmd = &Z.Cmd{
-	Name:    `insert`,
-	Summary: `insert a new password entry`,
-	NumArgs: 1,
-	Call: func(caller *Z.Cmd, args ...string) error {
-		d, err := Z.Conf.Data()
+var insertCmd = &cli.Command{
+	Name:         "insert",
+	Usage:        "insert a new password entry",
+	UsageText:    "insert ENTRY",
+	BashComplete: store.Comp,
+	Action: func(ctx *cli.Context) error {
+		conf := conf.New()
+		conf.MustInit()
+
+		d, err := conf.Data()
 		if err != nil {
 			return err
 		}
@@ -21,8 +26,7 @@ var insertCmd = &Z.Cmd{
 			return err
 		}
 
-		e := args[0]
-
+		e := ctx.Args().First()
 		s := store.New(c)
 		out, err := s.Insert(e)
 		if err != nil {
