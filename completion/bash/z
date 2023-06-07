@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /bin/bash
 
 : ${PROG:=$(basename ${BASH_SOURCE})}
 

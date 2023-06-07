@@ -1,29 +1,27 @@
 {
-  description = "Go Monolith";
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
-    gomod2nix = {
-      url = "github:nix-community/gomod2nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-  };
+  description = "Murtaza Udaipurwala's Go Monolith";
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
   outputs = { self, nixpkgs, ... }@inputs:
     let
       system = "x86_64-linux";
-      pkgs = import nixpkgs {
-        inherit system;
-        overlays = [ inputs.gomod2nix.overlays.default ];
-      };
+      pkgs = nixpkgs.legacyPackages.${system};
     in
     {
       formatter.${system} = pkgs.nixpkgs-fmt;
       packages.${system} = {
-        default = pkgs.buildGoApplication {
+        default = pkgs.buildGoModule {
           pname = "z";
           version = "0.2.0";
           src = ./.;
-          modules = ./gomod2nix.toml;
+          vendorSha256 = "sha256-VBxDE+Ibalt8Po2oQbLS89hnC7M9VgKiUjV5v7PiySI=";
+          CGO_ENABLED = 0;
           subPackages = [ "cmd/z" ];
+          nativeBuildInputs = [ pkgs.installShellFiles ];
+          postInstall = ''
+            for shell in bash zsh; do
+              installShellCompletion --$shell ./completion/$shell/z
+            done
+          '';
         };
       };
       devShells.${system}.default = pkgs.mkShell {
@@ -31,7 +29,6 @@
           go
           go-tools
           gopls
-          inputs.gomod2nix.packages.${system}.default
         ];
       };
     };

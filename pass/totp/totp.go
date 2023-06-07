@@ -22,7 +22,7 @@ const (
 var Cmd = &cli.Command{
 	Name:        "totp",
 	Usage:       "generate Time-based One Time Password(TOTP)",
-	Subcommands: []*cli.Command{showCmd, copyCmd},
+	Subcommands: []*cli.Command{showCmd},
 }
 
 func GenOTP(uri string) (string, error) {

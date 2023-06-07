@@ -54,10 +54,10 @@ student.`,
 
 		sub := dur.Sub(time.Now()).Truncate(time.Second)
 		if sub > 0 {
-			fmt.Printf("%s %s\n", prefix, sub)
+			fmt.Printf("%s%s\n", prefix, sub)
 			return nil
 		}
-		fmt.Printf("%s %s\n", warn, sub)
+		fmt.Printf("%s%s\n", warn, sub)
 
 		return nil
 	},
