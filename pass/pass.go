@@ -10,6 +10,6 @@ var Cmd = &cli.Command{
 	Name:  "pass",
 	Usage: "password manager based on AGE",
 	Subcommands: []*cli.Command{
-		showCmd, checkCmd, insertCmd, deleteCmd, reEncryptCmd, totp.Cmd,
+		showCmd, genCmd, checkCmd, insertCmd, deleteCmd, reEncryptCmd, totp.Cmd,
 	},
 }

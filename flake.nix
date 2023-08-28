@@ -13,7 +13,7 @@
           pname = "z";
           version = "0.2.0";
           src = ./.;
-          vendorSha256 = "sha256-VBxDE+Ibalt8Po2oQbLS89hnC7M9VgKiUjV5v7PiySI=";
+          vendorSha256 = "sha256-U5c5jagaRW+lq0jsxWnngdcU2YYEl8Jn2Phuuq5vdzs=";
           CGO_ENABLED = 0;
           subPackages = [ "cmd/z" ];
           nativeBuildInputs = [ pkgs.installShellFiles ];
