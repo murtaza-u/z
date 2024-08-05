@@ -14,9 +14,9 @@
         packages = {
           default = pkgs.buildGoModule {
             pname = "z";
-            version = "0.0.1";
+            version = "0.1.0";
             src = ./.;
-            vendorHash = null;
+            vendorHash = "sha256-VtQlwYRq+m/qY2S86dQO8SunOZ2SdIbwBzHMpgnN3M4=";
             CGO_ENABLED = 0;
             subPackages = [ "cmd/z" ];
           };
