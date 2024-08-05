@@ -19,6 +19,12 @@
             vendorHash = "sha256-VtQlwYRq+m/qY2S86dQO8SunOZ2SdIbwBzHMpgnN3M4=";
             CGO_ENABLED = 0;
             subPackages = [ "cmd/z" ];
+            nativeBuildInputs = [ pkgs.installShellFiles ];
+            postInstall = ''
+              for shell in bash zsh; do
+                installShellCompletion --$shell ./completion/$shell/z
+              done
+            '';
           };
         };
         devShells.default = pkgs.mkShell {
