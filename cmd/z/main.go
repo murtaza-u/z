@@ -1,7 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"log"
+	"os"
+
+	"github.com/murtaza-u/z"
+)
 
 func main() {
-	fmt.Println("Monolith Go Commander")
+	log.SetFlags(0)
+	err := z.Run(os.Args...)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
