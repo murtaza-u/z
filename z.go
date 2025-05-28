@@ -20,7 +20,7 @@ func Run(args ...string) error {
 	app := cli.NewApp()
 	app.Name = "z"
 	app.Usage = "Go monolith commander"
-	app.Version = "0.1.0"
+	app.Version = "v0.1.1"
 	app.EnableBashCompletion = true
 	app.Copyright = "Apache-2.0"
 	app.Authors = []*cli.Author{

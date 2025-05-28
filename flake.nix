@@ -1,10 +1,10 @@
 {
   description = "Monolith Go Commander";
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
     flake-utils.url = "github:numtide/flake-utils";
   };
-  outputs = { nixpkgs, flake-utils, ... }@inputs:
+  outputs = { nixpkgs, flake-utils, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
@@ -14,10 +14,10 @@
         packages = {
           default = pkgs.buildGoModule {
             pname = "z";
-            version = "0.1.0";
+            version = "0.1.1";
             src = ./.;
-            vendorHash = "sha256-VtQlwYRq+m/qY2S86dQO8SunOZ2SdIbwBzHMpgnN3M4=";
-            CGO_ENABLED = 0;
+            vendorHash = "sha256-WlwDfQxojWlSu455ZH0KEbb6eOi/rm7eap6XCs6lqjU=";
+            env.CGO_ENABLED = 0;
             subPackages = [ "cmd/z" ];
             nativeBuildInputs = [ pkgs.installShellFiles ];
             postInstall = ''
