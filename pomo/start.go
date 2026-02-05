@@ -1,21 +1,22 @@
 package pomo
 
 import (
+	"context"
 	"fmt"
 	"time"
 
 	"github.com/murtaza-u/z/internal/vars"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var startCmd = &cli.Command{
 	Name:      "start",
 	Usage:     "start the countdown timer",
 	UsageText: "start [duration]",
-	Action: func(ctx *cli.Context) error {
+	Action: func(ctx context.Context, c *cli.Command) error {
 		vars := vars.New()
-		_dur := ctx.Args().First()
+		_dur := c.Args().First()
 		if _dur == "" {
 			_dur = DefaultDuration
 		}

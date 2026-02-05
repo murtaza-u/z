@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -9,7 +10,7 @@ import (
 
 func main() {
 	log.SetFlags(0)
-	err := z.Run(os.Args...)
+	err := z.Run(context.Background(), os.Args...)
 	if err != nil {
 		log.Fatal(err)
 	}

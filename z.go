@@ -1,31 +1,33 @@
 package z
 
 import (
+	"context"
 	"fmt"
+	"net/mail"
 
 	"github.com/murtaza-u/z/internal/vars"
 	"github.com/murtaza-u/z/pomo"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // Run initializes and executes the monolith commander based on the provided
 // arguments.
-func Run(args ...string) error {
+func Run(ctx context.Context, args ...string) error {
 	err := vars.New().Init()
 	if err != nil {
 		return fmt.Errorf("failed to initialize cache vars: %w", err)
 	}
-
-	app := cli.NewApp()
-	app.Name = "z"
-	app.Usage = "Go monolith commander"
-	app.Version = "v0.1.1"
-	app.EnableBashCompletion = true
-	app.Copyright = "Apache-2.0"
-	app.Authors = []*cli.Author{
-		{Name: "Murtaza Udaipurwala", Email: "murtaza@murtazau.xyz"},
+	cmd := cli.Command{
+		Name:                  "z",
+		Usage:                 "Go monolith commander",
+		Version:               "v0.1.1",
+		EnableShellCompletion: true,
+		Copyright:             "Apache-2.0",
+		Authors: []any{
+			mail.Address{Name: "Murtaza Udaipurwala", Address: "murtaza@murtazau.xyz"},
+		},
+		Commands: []*cli.Command{pomo.Cmd},
 	}
-	app.Commands = []*cli.Command{pomo.Cmd}
-	return app.Run(args)
+	return cmd.Run(ctx, args)
 }

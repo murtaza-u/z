@@ -1,12 +1,13 @@
 package pomo
 
 import (
+	"context"
 	"fmt"
 	"time"
 
 	"github.com/murtaza-u/z/internal/vars"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var addCmd = &cli.Command{
@@ -14,11 +15,11 @@ var addCmd = &cli.Command{
 	Usage:       "extend duration of on-going countdown timer",
 	UsageText:   "add DURATION",
 	Description: "Eg: add 10m5s",
-	Action: func(ctx *cli.Context) error {
+	Action: func(ctx context.Context, c *cli.Command) error {
 		vars := vars.New()
 		vars.Init()
 
-		_x := ctx.Args().First()
+		_x := c.Args().First()
 		if _x == "" {
 			return fmt.Errorf("missing duration")
 		}

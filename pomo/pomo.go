@@ -1,12 +1,13 @@
 package pomo
 
 import (
+	"context"
 	"fmt"
 	"time"
 
 	"github.com/murtaza-u/z/internal/vars"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 const (
@@ -24,8 +25,8 @@ for focused work with planned breaks in between. Francesco Cirillo
 coined the term "pomodoro" which translates to tomato, in the late
 1980s after the tomato-shaped timer he used as a university
 student.`,
-	Subcommands: []*cli.Command{startCmd, stopCmd, addCmd},
-	Action: func(ctx *cli.Context) error {
+	Commands: []*cli.Command{startCmd, stopCmd, addCmd},
+	Action: func(ctx context.Context, c *cli.Command) error {
 		vars := vars.New()
 		vars.Init()
 
